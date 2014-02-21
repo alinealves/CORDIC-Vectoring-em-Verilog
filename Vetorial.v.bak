@@ -1,0 +1,76 @@
+/*Bruno, o meu código não está 100%, pois os resultados de Xout e Yout nao estao mostrando cada resultado das iteraçoes. E alem disso
+o meu Zout, apesar de estar mostrando resultados constantes, nao esta mostrando os resultados matematicamente correto*/
+
+
+module Vetorial (clock, angle, Xin, Yin, Xout, Yout, Zout);
+
+	//Declaracao do clock
+	input 				clock; 
+	//Declaracao das variaveis de entrada
+	input 	[15:0] 	angle, Xin, Yin; 
+	//Declaracao das variaveis de sai­da
+	output  	[15:0] 	Xout ; 
+	output 	[15:0] 	Yout ; 
+	output 	[15:0] 	Zout ; 
+	
+	
+	//Declaracao da matriz que contera os valores do arco tangente necessario ao calculo.
+	//Para realizar os calculos da atan utilizei o ponto fixo 16384 para melhor representar os valores.
+	wire [15:0] atan [0:11] ; 
+	assign atan[00] = 16'd12868 ;
+	assign atan[01] = 16'd7597 ;
+	assign atan[02] = 16'd4014 ;
+	assign atan[03] = 16'd2038 ;
+	assign atan[04] = 16'd1023 ;
+	assign atan[05] = 16'd512 ;
+	assign atan[06] = 16'd256 ;
+	assign atan[07] = 16'd128 ;
+	assign atan[08] = 16'd64 ;
+	assign atan[09] = 16'd32 ;
+	assign atan[10] = 16'd16 ;
+	assign atan[11] = 16'd8 ;
+	
+	//Declaracao dos registradores que criara o vetor dos valores 
+	reg  [15:0] X [0:11] ; 
+	reg  [15:0] Y [0:11] ;
+	reg  [15:0] Z [0:11] ;
+	
+	// assign X_shift = X[i] >> i ; 
+	 //assign Y_shift = Y[i] >> i ;
+
+genvar i;
+generate 
+for(i=0; i<11; i=i+1) 
+	begin : cordic
+
+	always @(posedge clock)
+      begin
+			if(Y[i][15] == 1)  // Teste para saber se o sinal do Y é positivo ou negativo.
+			begin
+			// O problema é que agora os valores aparecem unicamente no final, não constantemente como o Zout.
+				X[i+1] <= (X[i]) + Y[i] >> i ; //Y_shift ;
+				Y[i+1] <= (Y[i]) - X[i] >> i ; //X_shift ; 
+				Z[i+1] <= (Z[i]) + atan[i] ;
+			end
+			else 
+			begin
+				X[i+1] <= (X[i]) - Y[i] >> i ; //Y_shift ;
+				Y[i+1] <= (Y[i]) + X[i] >> i ; //X_shift ;
+				Z[i+1] <= (Z[i]) - atan[i] ;
+			end
+      end
+	end
+endgenerate
+
+always @ (posedge clock) 
+begin
+		X[0] <= Xin;
+		Y[0] <= Yin;
+		Z[0] <= angle;
+end
+	
+assign Xout = X[i] ; 
+assign Yout = Y[i] ; 
+assign Zout = Z[i];
+
+endmodule

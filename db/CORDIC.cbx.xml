@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<LOG_ROOT>
+	<PROJECT NAME="CORDIC">
+		<CBX_INST_ENTRY INSTANCE_NAME="|CORDIC|lpm_add_sub:Add4" CBX_FILE_NAME="add_sub_m3j.tdf"/>
+	</PROJECT>
+</LOG_ROOT>
